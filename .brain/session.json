@@ -1,0 +1,107 @@
+{
+    "updated_at": "2026-02-22T22:23:00+07:00",
+    "working_on": {
+        "feature": "Knowledge Sync (/save-brain)",
+        "current_plan_path": "plans/260222-1544-smartops-ai",
+        "current_phase": "Completed ALL Phases (1-7)",
+        "status": "idle",
+        "files": [],
+        "blockers": [],
+        "notes": "Skeleton MVP hoàn tất. Sẵn sàng bắt đầu implement real features (Omnichannel, CRM, Shipping)."
+    },
+    "pending_tasks": [
+        {
+            "task": "Implement real Prisma migrations (SHIPPING_TRIPS, CPROFILE, SYSTEM_INCIDENTS tables)",
+            "priority": "high",
+            "notes": "DB schema designed in DESIGN.md nhưng chưa tạo migration thật"
+        },
+        {
+            "task": "Tích hợp Zalo OA API & Facebook Messenger API cho Omnichannel Inbox",
+            "priority": "high",
+            "notes": "Hiện chỉ có webhook mock, cần real API integration"
+        },
+        {
+            "task": "Implement real JWT auth với database (thay thế mock user)",
+            "priority": "medium",
+            "notes": "Hiện dùng hardcode mock account"
+        },
+        {
+            "task": "Implement Barcode Scanner camera thật trên Expo",
+            "priority": "medium",
+            "notes": "Hiện chỉ có UI mock, cần expo-camera/expo-barcode-scanner"
+        },
+        {
+            "task": "Hoàn thiện README.md với hướng dẫn setup đầy đủ",
+            "priority": "low",
+            "notes": "README hiện rất sơ sài"
+        },
+        {
+            "task": "Commit initial codebase lên Git",
+            "priority": "high",
+            "notes": "Chưa có commit nào - git repo trống"
+        }
+    ],
+    "recent_changes": [
+        {
+            "timestamp": "2026-02-22T22:00:00+07:00",
+            "type": "testing",
+            "description": "Viết unit tests cho AuthService (4 test cases: login thành công, email sai, password sai, error message chung) và OrdersService (8 test cases: tạo đơn, tính tiền x3/x5, thể tích, UUID, whitelist keys, webhook events).",
+            "files": [
+                "apps/smartops-api/src/auth/auth.service.spec.ts",
+                "apps/smartops-api/src/orders/orders.service.spec.ts"
+            ]
+        },
+        {
+            "timestamp": "2026-02-22T21:00:00+07:00",
+            "type": "bugfix",
+            "description": "Fix Jest test failures: cấu hình jest.config.mjs, install @testing-library/*, thêm @types/jest cho web app, fix TypeScript red squiggles.",
+            "files": [
+                "apps/smartops-web/package.json",
+                "apps/smartops-web/tsconfig.json",
+                "apps/smartops-web/jest.config.mjs"
+            ]
+        },
+        {
+            "timestamp": "2026-02-22T17:35:00+07:00",
+            "type": "configuration",
+            "description": "Tạo brain.json, session.json, CHANGELOG, API documentation lần đầu.",
+            "files": [
+                ".brain/brain.json",
+                ".brain/session.json",
+                "CHANGELOG.md",
+                "docs/api/endpoints.md"
+            ]
+        }
+    ],
+    "errors_encountered": [
+        {
+            "error": "Jest runner báo Unexpected Token (Node version mismatch trên Windows NVM).",
+            "solution": "Tạo jest.config.mjs với jsdom env + install @testing-library/react, @testing-library/jest-dom.",
+            "resolved": true
+        },
+        {
+            "error": "TypeScript red squiggles cho describe/it/expect trong test files.",
+            "solution": "Install @types/jest + tsconfig.json include **/*.spec.ts.",
+            "resolved": true
+        },
+        {
+            "error": "AuthService test fail do bcrypt hash chưa complete khi test chạy.",
+            "solution": "Thêm await setTimeout 200ms trong beforeEach để chờ bcrypt init.",
+            "resolved": true
+        }
+    ],
+    "decisions_made": [
+        {
+            "decision": "Dùng mock JwtService trong unit test thay vì @nestjs/testing",
+            "reason": "Tránh transitive dependency parsing issues, test nhanh hơn"
+        },
+        {
+            "decision": "Dùng npm workspaces cho monorepo",
+            "reason": "Đơn giản, không cần thêm tool (Turborepo/Nx) cho giai đoạn MVP"
+        },
+        {
+            "decision": "Offline Queue dùng React state (useState) thay vì AsyncStorage",
+            "reason": "Phase skeleton chỉ cần demo concept, Phase sau sẽ upgrade lên persistent storage"
+        }
+    ]
+}

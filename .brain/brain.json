@@ -1,0 +1,159 @@
+{
+    "meta": {
+        "schema_version": "1.1.0",
+        "awf_version": "4.0.2",
+        "last_updated": "2026-02-22T22:23:00+07:00"
+    },
+    "project": {
+        "name": "SmartOps AI",
+        "type": "Monorepo (NestJS Backend, Next.js Admin Web, Expo Mobile App)",
+        "status": "development (Phase 07 completed - Skeleton MVP)",
+        "description": "Hệ thống ERP mini tích hợp Omnichannel (Zalo, Messenger) để tối ưu luồng vận hành từ Sales, Sản xuất đến Giao nhận."
+    },
+    "tech_stack": {
+        "frontend": {
+            "framework": "Next.js 14",
+            "state_management": "Zustand",
+            "styling": "TailwindCSS",
+            "testing": "Jest, @testing-library/react"
+        },
+        "backend": {
+            "framework": "NestJS",
+            "language": "TypeScript",
+            "testing": "Jest, Supertest",
+            "auth": "JWT (Passport.js + bcrypt)"
+        },
+        "mobile": {
+            "framework": "React Native (Expo)",
+            "features": "Barcode Scanner, Offline Queue Hook"
+        },
+        "database": {
+            "type": "PostgreSQL 15",
+            "orm": "Prisma",
+            "cache": "Redis 7"
+        },
+        "infrastructure": {
+            "docker": true,
+            "nginx_proxy": true,
+            "redis": true,
+            "ci": "GitHub Actions",
+            "containerization": "Docker Compose (postgres, redis, api, web)"
+        },
+        "dev_tools": {
+            "linting": "ESLint 8",
+            "formatting": "Prettier 3",
+            "commits": "Husky + Commitlint (conventional)"
+        }
+    },
+    "database_schema": {
+        "summary": "App lưu: thông tin user (theo role Sales/Sản xuất/Shipper/Admin), đơn hàng (barcode, gói dịch vụ), hồ sơ khách hàng (Zalo/FB), chuyến xe giao nhận.",
+        "tables": [
+            "users",
+            "orders",
+            "tenants",
+            "notifications",
+            "shipping_trips (planned)",
+            "cprofile (planned)",
+            "system_incidents (planned)"
+        ],
+        "relationships_explained": "Users thuộc về Tenants. Orders có quan hệ với Users (người tạo, người xử lý). 1 khách (CProfile) có nhiều đơn. 1 chuyến xe (ShippingTrip) chứa nhiều đơn."
+    },
+    "api_endpoints": [
+        {
+            "method": "POST",
+            "path": "/auth/login",
+            "explained": "Đăng nhập - gửi email + password, nhận JWT token. Hiện dùng mock account admin@smartops.ai / Admin@123"
+        },
+        {
+            "method": "POST",
+            "path": "/orders/create",
+            "explained": "Tạo đơn hàng mới - tính tổng tiền = 15000 * multiplier (x3/x5) * totalBags. Yêu cầu ít nhất 1 barcode."
+        },
+        {
+            "method": "POST",
+            "path": "/orders/webhook/omnichannel",
+            "explained": "Nhận webhook từ Zalo OA / Facebook Messenger. Xử lý sự kiện ZALO_MESSAGE."
+        },
+        {
+            "method": "GET",
+            "path": "/orders/sse",
+            "explained": "Server-Sent Events cho realtime push notifications đến Web/Mobile clients."
+        }
+    ],
+    "business_rules": [
+        "Tính tiền đơn hàng = 15000 * multiplier (x3=3, x5=5) * số lượng bịch (totalBags).",
+        "Đơn hàng hợp lệ bắt buộc phải có ít nhất 1 mã vạch (barcode).",
+        "Thể tích ước lượng = totalBags * 1.5 (hệ số mặc định).",
+        "Mobile app Shipper có tính năng Offline queue - tự đẩy lên server khi có mạng lại.",
+        "Webhook chỉ xử lý event ZALO_MESSAGE, event không nhận diện trả về { success: false, reason: 'unhandled_event' }.",
+        "Auth dùng bcrypt hash password + JWT token. Error message chung 'Email hoặc mật khẩu không đúng' để không lộ email tồn tại."
+    ],
+    "features": [
+        {
+            "name": "Omnichannel Inbox",
+            "status": "skeleton",
+            "description": "Gom Zalo, Messenger về 1 màn hình trên Admin Web. State quản lý bằng Zustand."
+        },
+        {
+            "name": "Barcode Scanner",
+            "status": "skeleton",
+            "description": "Quét barcode trên Mobile, hiển thị UI trạng thái Xanh/Đỏ."
+        },
+        {
+            "name": "Offline Queue",
+            "status": "skeleton",
+            "description": "Hook useOfflineQueue cho Mobile - queue actions khi offline, process khi online."
+        },
+        {
+            "name": "Shipper Workspace",
+            "status": "skeleton",
+            "description": "Màn hình chính Shipper - toggle online/offline, hiển thị queue count."
+        },
+        {
+            "name": "Auth Module",
+            "status": "implemented",
+            "description": "JWT login với bcrypt hash, mock user admin@smartops.ai."
+        },
+        {
+            "name": "Orders API",
+            "status": "implemented",
+            "description": "Create order, webhook omnichannel, SSE realtime."
+        },
+        {
+            "name": "Exception Filter",
+            "status": "implemented",
+            "description": "Global exception filter toàn cục trên Backend hứng log lỗi."
+        }
+    ],
+    "knowledge_items": {
+        "patterns": [
+            "Monorepo npm workspaces (apps/*, packages/*)",
+            "Zustand State Management cho Inbox (useChatStore)",
+            "Offline-first sync queue (React Native custom hook useOfflineQueue)",
+            "NestJS module architecture (Auth, Orders modules)",
+            "JWT strategy with Passport.js",
+            "Docker multi-service compose (postgres, redis, api, web)"
+        ],
+        "gotchas": [
+            "Windows NVM hay bị lọt process Node cũ => Lỗi khi chạy Jest Next.js (cần >=Node 18).",
+            "Websockets/SSE phải set Header Connection 'upgrade' trong Nginx conf.",
+            "Jest config cho Next.js cần dùng jest.config.mjs + jsdom environment + @testing-library.",
+            "TypeScript test files cần @types/jest và tsconfig.json phải include test files.",
+            "AuthService test cần setTimeout 200ms để chờ bcrypt hash init trong beforeEach."
+        ],
+        "conventions": [
+            "Sử dụng Prisma schema cho DB",
+            "Viết test cho mọi module (Jest unit test cho services)",
+            "Conventional Commits (Husky + Commitlint)",
+            "ESLint + Prettier cho code quality",
+            "Biến môi trường qua .env file (xem .env.example)"
+        ]
+    },
+    "file_structure": {
+        "apps/smartops-api/src": "NestJS backend - auth/, orders/, exceptions/ modules",
+        "apps/smartops-web/src": "Next.js admin - components/OmnichannelInbox, store/useChatStore",
+        "apps/smartops-mobile/src": "Expo mobile - components/BarcodeScanner, hooks/useOfflineQueue, screens/ShipperWorkspace",
+        "docs/": "BRIEF.md, DESIGN.md, design-specs.md, api/endpoints.md, specs/",
+        "plans/": "Implementation plans (260222-1544-smartops-ai)"
+    }
+}

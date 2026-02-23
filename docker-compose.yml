@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: smartops-db
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: smartops-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    restart: unless-stopped
+
+  smartops-api:
+    build:
+      context: .
+      dockerfile: apps/smartops-api/Dockerfile
+    container_name: smartops-api
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - PORT=${PORT}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  smartops-web:
+    build:
+      context: .
+      dockerfile: apps/smartops-web/Dockerfile
+    container_name: smartops-web
+    depends_on:
+      - smartops-api
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: smartops-nginx
+    depends_on:
+      - smartops-web
+      - smartops-api
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    command: >
+      /bin/sh -c " apk add --no-cache openssl && mkdir -p /etc/nginx/ssl && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt -subj '/C=VN/ST=HCM/L=HCM/O=SmartOps/OU=Dev/CN=smartops.ai' && nginx -g 'daemon off;' "
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:

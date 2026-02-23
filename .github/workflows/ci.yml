@@ -1,0 +1,36 @@
+name: SmartOps-AI CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [24.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Run Backend Tests
+      run: npm run test --workspace=apps/smartops-api
+      
+    - name: Run Web Frontend Tests
+      run: npm run test --workspace=apps/smartops-web
+
+    - name: Run Mobile Tests
+      run: npm run test --workspace=apps/smartops-mobile
