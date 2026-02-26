@@ -1,35 +1,32 @@
 {
-    "updated_at": "2026-02-25T18:00:00Z",
+    "updated_at": "2026-02-26T11:06:00+07:00",
     "working_on": {
-        "feature": "Code Cleanup & Stabilization",
-        "task": "Completed /refactor (8 code smells fixed) + Audit S1-S3 validated",
+        "feature": "Project Stabilization & GitHub Setup",
+        "task": "Pushed to GitHub, fixed ConfigModule .env loading, reviewed live UI + API",
         "status": "completed",
         "files": [
-            "apps/smartops-api/src/orders/orders.service.ts",
-            "apps/smartops-api/src/orders/orders.controller.ts",
-            "apps/smartops-api/src/orders/dto/webhook-payload.dto.ts",
-            "apps/smartops-web/src/components/OmnichannelInbox.tsx",
-            "apps/smartops-web/src/components/SessionList.tsx",
-            "apps/smartops-web/src/components/ChatArea.tsx",
-            "apps/smartops-web/src/components/MessageInput.tsx",
-            "apps/smartops-mobile/src/hooks/useOfflineQueue.ts",
-            "apps/smartops-mobile/src/components/BarcodeScanner.tsx"
+            "apps/smartops-api/src/app.module.ts",
+            "apps/smartops-api/package.json",
+            "package.json"
         ],
-        "blockers": [
-            "Node.js bị mất khỏi PATH — cần cài lại Node 20+ qua NVM hoặc installer"
-        ],
-        "notes": "All audit S1-S3 tests pass (19/19). Refactored 8 code smells. OmnichannelInbox split 120→49 lines."
+        "blockers": [],
+        "notes": "All code pushed to GitHub main branch. Web UI + API both running. Auth login works with admin@smartops.ai."
     },
     "pending_tasks": [
         {
-            "task": "Cài lại Node.js 20+ (hiện tại node command not found)",
-            "priority": "critical",
-            "notes": "PowerShell không nhận node command. Cần nvm install 20 hoặc tải nodejs.org"
+            "task": "Kết nối Frontend (Next.js) với Backend API (NestJS)",
+            "priority": "high",
+            "notes": "Web đang dùng mock data trong Zustand store. Cần fetch từ API thực."
         },
         {
             "task": "Chuyển AuthService từ in-memory sang Prisma DB",
             "priority": "medium",
             "notes": "USERS_STORE hiện tại hardcoded, cần migrate sang PostgreSQL"
+        },
+        {
+            "task": "Setup PostgreSQL + Prisma migrate",
+            "priority": "medium",
+            "notes": "Schema Prisma có nhưng chưa run migration"
         },
         {
             "task": "Cài @testing-library/react-native cho mobile tests",
@@ -39,56 +36,47 @@
     ],
     "recent_changes": [
         {
-            "timestamp": "2026-02-25",
-            "type": "testing",
-            "description": "Added 4 HMAC verifyWebhookSignature tests + 6 useOfflineQueue tests",
+            "timestamp": "2026-02-26",
+            "type": "fix",
+            "description": "Added ConfigModule.forRoot() to load .env from monorepo root. Moved @nestjs/throttler to API package.",
             "files": [
-                "apps/smartops-api/src/orders/orders.service.spec.ts",
-                "apps/smartops-mobile/__tests__/useOfflineQueue.test.ts"
+                "apps/smartops-api/src/app.module.ts",
+                "apps/smartops-api/package.json",
+                "package.json"
             ]
         },
         {
-            "timestamp": "2026-02-25",
-            "type": "refactor",
-            "description": "8 code smells fixed: deleted dead test, extracted constants, typed webhooks, split OmnichannelInbox",
-            "files": [
-                "apps/smartops-api/src/orders/orders.service.ts",
-                "apps/smartops-api/src/orders/orders.controller.ts",
-                "apps/smartops-api/src/orders/dto/webhook-payload.dto.ts",
-                "apps/smartops-api/src/exceptions/all-exceptions.filter.ts",
-                "apps/smartops-web/src/components/OmnichannelInbox.tsx",
-                "apps/smartops-web/src/components/SessionList.tsx",
-                "apps/smartops-web/src/components/ChatArea.tsx",
-                "apps/smartops-web/src/components/MessageInput.tsx",
-                "apps/smartops-mobile/src/hooks/useOfflineQueue.ts",
-                "apps/smartops-mobile/src/components/BarcodeScanner.tsx"
-            ]
+            "timestamp": "2026-02-26",
+            "type": "devops",
+            "description": "Pushed project to GitHub: https://github.com/xuanloc2711-ai-dev/smartops-ai",
+            "files": []
         }
     ],
     "errors_encountered": [
         {
-            "error": "node: The term 'node' is not recognized (after Node uninstall/PATH change)",
-            "solution": "Cần cài lại Node 20+ qua NVM (nvm install 20 && nvm use 20) hoặc tải installer từ nodejs.org",
-            "resolved": false
+            "error": "@nestjs/throttler in root package.json cannot resolve @nestjs/common peer",
+            "solution": "Moved @nestjs/throttler from root to apps/smartops-api/package.json",
+            "resolved": true
         },
         {
-            "error": "Windows PowerShell 'Terminate batch job' khi chạy Jest",
-            "solution": "Dùng cmd /c 'npx jest --verbose --forceExit 2>&1'",
+            "error": "Auth login 401 — email mismatch (smartops.vn vs smartops.ai)",
+            "solution": "Correct admin email is admin@smartops.ai (not .vn)",
             "resolved": true
         }
     ],
     "decisions_made": [
         {
-            "decision": "Dùng WebhookPayload interface thay vì class DTO cho webhooks",
-            "reason": "Webhook payload từ external service không cần class-validator, chỉ cần type safety"
+            "decision": "Dùng ConfigModule.forRoot() với envFilePath trỏ lên root .env",
+            "reason": "Monorepo structure: .env ở root, API ở apps/smartops-api. ConfigModule cho phép load từ custom path."
         },
         {
-            "decision": "Tách OmnichannelInbox thành 3 sub-components",
-            "reason": "120 dòng JSX inline quá dài, tách ra để dễ maintain và test độc lập"
-        },
-        {
-            "decision": "Dùng Record<string, unknown> thay vì any cho offline queue payload",
-            "reason": "Giữ flexibility nhưng block implicit any access"
+            "decision": "Rename branch master → main trước khi push GitHub",
+            "reason": "GitHub convention mặc định dùng main làm default branch."
         }
-    ]
+    ],
+    "git": {
+        "remote": "https://github.com/xuanloc2711-ai-dev/smartops-ai",
+        "branch": "main",
+        "last_push": "2026-02-26T11:06:00+07:00"
+    }
 }
