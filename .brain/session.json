@@ -1,107 +1,94 @@
 {
-    "updated_at": "2026-02-22T22:23:00+07:00",
+    "updated_at": "2026-02-25T18:00:00Z",
     "working_on": {
-        "feature": "Knowledge Sync (/save-brain)",
-        "current_plan_path": "plans/260222-1544-smartops-ai",
-        "current_phase": "Completed ALL Phases (1-7)",
-        "status": "idle",
-        "files": [],
-        "blockers": [],
-        "notes": "Skeleton MVP hoàn tất. Sẵn sàng bắt đầu implement real features (Omnichannel, CRM, Shipping)."
+        "feature": "Code Cleanup & Stabilization",
+        "task": "Completed /refactor (8 code smells fixed) + Audit S1-S3 validated",
+        "status": "completed",
+        "files": [
+            "apps/smartops-api/src/orders/orders.service.ts",
+            "apps/smartops-api/src/orders/orders.controller.ts",
+            "apps/smartops-api/src/orders/dto/webhook-payload.dto.ts",
+            "apps/smartops-web/src/components/OmnichannelInbox.tsx",
+            "apps/smartops-web/src/components/SessionList.tsx",
+            "apps/smartops-web/src/components/ChatArea.tsx",
+            "apps/smartops-web/src/components/MessageInput.tsx",
+            "apps/smartops-mobile/src/hooks/useOfflineQueue.ts",
+            "apps/smartops-mobile/src/components/BarcodeScanner.tsx"
+        ],
+        "blockers": [
+            "Node.js bị mất khỏi PATH — cần cài lại Node 20+ qua NVM hoặc installer"
+        ],
+        "notes": "All audit S1-S3 tests pass (19/19). Refactored 8 code smells. OmnichannelInbox split 120→49 lines."
     },
     "pending_tasks": [
         {
-            "task": "Implement real Prisma migrations (SHIPPING_TRIPS, CPROFILE, SYSTEM_INCIDENTS tables)",
-            "priority": "high",
-            "notes": "DB schema designed in DESIGN.md nhưng chưa tạo migration thật"
+            "task": "Cài lại Node.js 20+ (hiện tại node command not found)",
+            "priority": "critical",
+            "notes": "PowerShell không nhận node command. Cần nvm install 20 hoặc tải nodejs.org"
         },
         {
-            "task": "Tích hợp Zalo OA API & Facebook Messenger API cho Omnichannel Inbox",
-            "priority": "high",
-            "notes": "Hiện chỉ có webhook mock, cần real API integration"
-        },
-        {
-            "task": "Implement real JWT auth với database (thay thế mock user)",
+            "task": "Chuyển AuthService từ in-memory sang Prisma DB",
             "priority": "medium",
-            "notes": "Hiện dùng hardcode mock account"
+            "notes": "USERS_STORE hiện tại hardcoded, cần migrate sang PostgreSQL"
         },
         {
-            "task": "Implement Barcode Scanner camera thật trên Expo",
-            "priority": "medium",
-            "notes": "Hiện chỉ có UI mock, cần expo-camera/expo-barcode-scanner"
-        },
-        {
-            "task": "Hoàn thiện README.md với hướng dẫn setup đầy đủ",
+            "task": "Cài @testing-library/react-native cho mobile tests",
             "priority": "low",
-            "notes": "README hiện rất sơ sài"
-        },
-        {
-            "task": "Commit initial codebase lên Git",
-            "priority": "high",
-            "notes": "Chưa có commit nào - git repo trống"
+            "notes": "useOfflineQueue.test.ts cần dependency này để chạy"
         }
     ],
     "recent_changes": [
         {
-            "timestamp": "2026-02-22T22:00:00+07:00",
+            "timestamp": "2026-02-25",
             "type": "testing",
-            "description": "Viết unit tests cho AuthService (4 test cases: login thành công, email sai, password sai, error message chung) và OrdersService (8 test cases: tạo đơn, tính tiền x3/x5, thể tích, UUID, whitelist keys, webhook events).",
+            "description": "Added 4 HMAC verifyWebhookSignature tests + 6 useOfflineQueue tests",
             "files": [
-                "apps/smartops-api/src/auth/auth.service.spec.ts",
-                "apps/smartops-api/src/orders/orders.service.spec.ts"
+                "apps/smartops-api/src/orders/orders.service.spec.ts",
+                "apps/smartops-mobile/__tests__/useOfflineQueue.test.ts"
             ]
         },
         {
-            "timestamp": "2026-02-22T21:00:00+07:00",
-            "type": "bugfix",
-            "description": "Fix Jest test failures: cấu hình jest.config.mjs, install @testing-library/*, thêm @types/jest cho web app, fix TypeScript red squiggles.",
+            "timestamp": "2026-02-25",
+            "type": "refactor",
+            "description": "8 code smells fixed: deleted dead test, extracted constants, typed webhooks, split OmnichannelInbox",
             "files": [
-                "apps/smartops-web/package.json",
-                "apps/smartops-web/tsconfig.json",
-                "apps/smartops-web/jest.config.mjs"
-            ]
-        },
-        {
-            "timestamp": "2026-02-22T17:35:00+07:00",
-            "type": "configuration",
-            "description": "Tạo brain.json, session.json, CHANGELOG, API documentation lần đầu.",
-            "files": [
-                ".brain/brain.json",
-                ".brain/session.json",
-                "CHANGELOG.md",
-                "docs/api/endpoints.md"
+                "apps/smartops-api/src/orders/orders.service.ts",
+                "apps/smartops-api/src/orders/orders.controller.ts",
+                "apps/smartops-api/src/orders/dto/webhook-payload.dto.ts",
+                "apps/smartops-api/src/exceptions/all-exceptions.filter.ts",
+                "apps/smartops-web/src/components/OmnichannelInbox.tsx",
+                "apps/smartops-web/src/components/SessionList.tsx",
+                "apps/smartops-web/src/components/ChatArea.tsx",
+                "apps/smartops-web/src/components/MessageInput.tsx",
+                "apps/smartops-mobile/src/hooks/useOfflineQueue.ts",
+                "apps/smartops-mobile/src/components/BarcodeScanner.tsx"
             ]
         }
     ],
     "errors_encountered": [
         {
-            "error": "Jest runner báo Unexpected Token (Node version mismatch trên Windows NVM).",
-            "solution": "Tạo jest.config.mjs với jsdom env + install @testing-library/react, @testing-library/jest-dom.",
-            "resolved": true
+            "error": "node: The term 'node' is not recognized (after Node uninstall/PATH change)",
+            "solution": "Cần cài lại Node 20+ qua NVM (nvm install 20 && nvm use 20) hoặc tải installer từ nodejs.org",
+            "resolved": false
         },
         {
-            "error": "TypeScript red squiggles cho describe/it/expect trong test files.",
-            "solution": "Install @types/jest + tsconfig.json include **/*.spec.ts.",
-            "resolved": true
-        },
-        {
-            "error": "AuthService test fail do bcrypt hash chưa complete khi test chạy.",
-            "solution": "Thêm await setTimeout 200ms trong beforeEach để chờ bcrypt init.",
+            "error": "Windows PowerShell 'Terminate batch job' khi chạy Jest",
+            "solution": "Dùng cmd /c 'npx jest --verbose --forceExit 2>&1'",
             "resolved": true
         }
     ],
     "decisions_made": [
         {
-            "decision": "Dùng mock JwtService trong unit test thay vì @nestjs/testing",
-            "reason": "Tránh transitive dependency parsing issues, test nhanh hơn"
+            "decision": "Dùng WebhookPayload interface thay vì class DTO cho webhooks",
+            "reason": "Webhook payload từ external service không cần class-validator, chỉ cần type safety"
         },
         {
-            "decision": "Dùng npm workspaces cho monorepo",
-            "reason": "Đơn giản, không cần thêm tool (Turborepo/Nx) cho giai đoạn MVP"
+            "decision": "Tách OmnichannelInbox thành 3 sub-components",
+            "reason": "120 dòng JSX inline quá dài, tách ra để dễ maintain và test độc lập"
         },
         {
-            "decision": "Offline Queue dùng React state (useState) thay vì AsyncStorage",
-            "reason": "Phase skeleton chỉ cần demo concept, Phase sau sẽ upgrade lên persistent storage"
+            "decision": "Dùng Record<string, unknown> thay vì any cho offline queue payload",
+            "reason": "Giữ flexibility nhưng block implicit any access"
         }
     ]
 }

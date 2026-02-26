@@ -100,4 +100,53 @@ describe('OrdersService', () => {
             expect(result).toEqual({ success: true });
         });
     });
+
+    describe('verifyWebhookSignature (S3 HMAC)', () => {
+        const { createHmac } = require('crypto');
+
+        afterEach(() => {
+            delete process.env.ZALO_WEBHOOK_SECRET;
+        });
+
+        it('should return TRUE khi signature hợp lệ', () => {
+            const secret = 'test-webhook-secret-key';
+            process.env.ZALO_WEBHOOK_SECRET = secret;
+
+            const payload = { event: 'ZALO_MESSAGE', from: 'user123' };
+            const payloadString = JSON.stringify(payload);
+            const validSignature = createHmac('sha256', secret)
+                .update(payloadString)
+                .digest('hex');
+
+            expect(service.verifyWebhookSignature(payload, validSignature)).toBe(true);
+        });
+
+        it('should return FALSE khi signature không khớp', () => {
+            process.env.ZALO_WEBHOOK_SECRET = 'real-secret';
+
+            const payload = { event: 'ZALO_MESSAGE', from: 'user123' };
+            const fakeSignature = 'definitely-not-a-valid-hmac-signature';
+
+            expect(service.verifyWebhookSignature(payload, fakeSignature)).toBe(false);
+        });
+
+        it('should return TRUE (fail-open) khi ZALO_WEBHOOK_SECRET chưa được set', () => {
+            delete process.env.ZALO_WEBHOOK_SECRET;
+
+            const payload = { event: 'ZALO_MESSAGE' };
+            expect(service.verifyWebhookSignature(payload, 'any-signature')).toBe(true);
+        });
+
+        it('should xử lý đúng khi payload là string', () => {
+            const secret = 'test-secret';
+            process.env.ZALO_WEBHOOK_SECRET = secret;
+
+            const payloadString = '{"event":"ZALO_MESSAGE"}';
+            const validSignature = createHmac('sha256', secret)
+                .update(payloadString)
+                .digest('hex');
+
+            expect(service.verifyWebhookSignature(payloadString, validSignature)).toBe(true);
+        });
+    });
 });

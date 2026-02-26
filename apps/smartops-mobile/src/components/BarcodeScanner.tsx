@@ -4,11 +4,12 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 export default function BarcodeScanner({ onScan }: { onScan: (code: string) => void }) {
     const [scanned, setScanned] = useState(false);
 
+    const MOCK_BARCODE = 'ORDER-12345';
+
     // Giả lập quét barcode
     const handleSimulateScan = () => {
         setScanned(true);
-        // Giả định mã quét thành công
-        onScan('ORDER-12345');
+        onScan(MOCK_BARCODE);
         setTimeout(() => setScanned(false), 2000);
     };
 

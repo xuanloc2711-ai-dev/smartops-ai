@@ -1,5 +1,15 @@
 # Changelog
 
+## [2026-02-23]
+### Added
+- Cấu hình Rate Limiting (ThrottlerGuard) cho API Backend chặn 100 request/phút.
+- Thêm `@@index` Database schema (status, shipperId, tripId) ở các bảng lớn.
+
+### Fixed
+- Vá lỗi N+1 queries tìm kiếm Database.
+- Đóng API mở do thiếu giới hạn lượt gọi khiến bot có thể DDOS.
+- Loại bỏ `Math.random` ở Orders, thay vào bằng UUID chuẩn.
+
 ## [2026-02-22] - Initial Skeleton MVP
 
 ### Added

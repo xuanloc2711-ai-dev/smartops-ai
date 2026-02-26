@@ -7,26 +7,32 @@ Base URL: `http://localhost:3001` (Nginx proxy ngoài: `https://[domain]/api/`)
 
 ## 🔐 Auth
 
-### POST /auth/login
-Đăng nhập hệ thống (Mock phase).
+### POST /api/auth/login
+Đăng nhập vào hệ thống để lấy Token.
 
 **Request:**
 ```json
 { 
-  "email": "admin@smartops.ai", 
-  "password": "admin123" 
+  "phone": "0987654321", 
+  "password": "Admin@123" 
 }
 ```
 
 **Response (200):**
 ```json
 { 
-  "access_token": "fake-jwt-token-due-to-early-setup" 
+  "access_token": "eyJ...", 
+  "user": { 
+    "id": "uuid-v4", 
+    "name": "Admin",
+    "role": "ADMIN" 
+  } 
 }
 ```
 
 **Errors:**
-- `401 Unauthorized`: Invalid credentials
+- `401 Unauthorized`: Sai thông tin đăng nhập
+- `429 Too Many Requests`: Vượt quá 100 requests / phút (Rate Limit)
 
 ---
 

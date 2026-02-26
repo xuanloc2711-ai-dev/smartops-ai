@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "commonjs",
+        "lib": [
+            "dom",
+            "esnext"
+        ],
+        "strict": true,
+        "types": [
+            "@playwright/test"
+        ]
+    },
+    "include": [
+        "**/*.ts"
+    ]
+}

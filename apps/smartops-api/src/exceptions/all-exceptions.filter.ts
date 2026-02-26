@@ -20,7 +20,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             timestamp: new Date().toISOString(),
             path: request.url,
             method: request.method,
-            errorBase: exception instanceof Error ? exception.message : String(exception),
+            message: exception instanceof Error ? exception.message : String(exception),
         };
 
         // W3 fix: Use NestJS Logger instead of console.error

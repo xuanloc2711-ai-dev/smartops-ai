@@ -1,17 +1,23 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { randomUUID, createHmac } from 'crypto';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { WebhookPayload } from './dto/webhook-payload.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class OrdersService {
     private readonly logger = new Logger(OrdersService.name);
 
+    /** Giá cơ bản mỗi túi (VNĐ) */
+    private static readonly BASE_PRICE_PER_BAG = 15_000;
+    /** Hệ số ước tính thể tích mỗi túi (m³) */
+    private static readonly VOLUME_PER_BAG = 1.5;
+
     constructor(private readonly eventEmitter: EventEmitter2) { }
 
     public async createOrder(data: CreateOrderDto) {
         const multiplier = data.servicePackage === 'x3' ? 3 : data.servicePackage === 'x5' ? 5 : 1;
-        const estimatedVol = data.totalBags * 1.5;
+        const estimatedVol = data.totalBags * OrdersService.VOLUME_PER_BAG;
 
         const order = {
             id: randomUUID(),             // S1 fix: crypto UUID instead of Math.random
@@ -21,7 +27,7 @@ export class OrdersService {
             totalBags: data.totalBags,
             estimatedVol,
             multiplier,
-            totalAmount: 15000 * multiplier * data.totalBags,
+            totalAmount: OrdersService.BASE_PRICE_PER_BAG * multiplier * data.totalBags,
             createdAt: new Date().toISOString(),
         };
 
@@ -30,7 +36,7 @@ export class OrdersService {
         return order;
     }
 
-    public verifyWebhookSignature(payload: any, signature: string): boolean {
+    public verifyWebhookSignature(payload: WebhookPayload | string, signature: string): boolean {
         const secret = process.env.ZALO_WEBHOOK_SECRET;
         if (!secret) return true; // Fail-open or bypass in dev if not set
 
@@ -48,7 +54,7 @@ export class OrdersService {
         return expectedSignature === signature;
     }
 
-    public async handleWebhook(payload: any) {
+    public async handleWebhook(payload: WebhookPayload) {
         if (payload.event === 'ZALO_MESSAGE') {
             this.logger.log(`Processed Zalo Webhook from: ${payload.from || 'unknown'}`); // W3 fix
             this.eventEmitter.emit('webhook.zalo', payload); // W2 fix: emit event for SSE

@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 interface QueueItem {
     id: string;
     action: 'UPDATE_STATUS' | 'UPLOAD_IMAGE';
-    payload: any;
+    payload: Record<string, unknown>;
     timestamp: Date;
 }
 
@@ -42,7 +42,7 @@ export function useOfflineQueue() {
         }
     }, [queue, isInitialized]);
 
-    const addToQueue = useCallback((action: QueueItem['action'], payload: any) => {
+    const addToQueue = useCallback((action: QueueItem['action'], payload: Record<string, unknown>) => {
         const newItem: QueueItem = {
             id: uuidv4(), // S1 fix: Reliable UUID instead of Math.random
             action,
@@ -55,11 +55,11 @@ export function useOfflineQueue() {
             // UI Layer will handle success/failure state
         } else {
             // Enqueue
-            setQueue(prev => [...prev, newItem]);
+            setQueue((prev: QueueItem[]) => [...prev, newItem]);
         }
     }, [isOnline]);
 
-    const toggleNetwork = () => setIsOnline(prev => !prev);
+    const toggleNetwork = () => setIsOnline((prev: boolean) => !prev);
 
     const processQueue = useCallback(() => {
         if (queue.length > 0 && isOnline) {
